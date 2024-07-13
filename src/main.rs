@@ -1,6 +1,8 @@
 mod lib;
 
-use crate::lib::{prompt, read_plans_from_file, PlansInfo};
+use crate::lib::{
+    delete_plan, prompt, read_plans_from_file, update_plan, PlansInfo,
+};
 
 fn clr() {
     print!("\x1B[2J\x1B[1;1H");
@@ -37,15 +39,24 @@ fn main() {
         match choice.trim() {
             "1" => {
                 clr();
-                println!("Print 1")
+                let entry = PlansInfo::new(prompt("Plan: "));
+
+                println!("Entry added Successfully");
+                entry.write_to_file();
             }
             "2" => {
                 clr();
-                println!("Print 2")
+                match update_plan() {
+                    Ok(_) => println!("Plan successfully updated"),
+                    Err(e) => eprintln!("Error While updating plan: {}", e),
+                }
             }
             "3" => {
                 clr();
-                println!("Print 3")
+                match delete_plan() {
+                    Ok(_) => println!("Plan successfully deleted"),
+                    Err(e) => eprintln!("Error while deleting plan: {}", e),
+                }
             }
             "4" => {
                 clr();

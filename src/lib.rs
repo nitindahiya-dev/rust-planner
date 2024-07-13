@@ -12,15 +12,21 @@ impl PlansInfo {
         PlansInfo { plan }
     }
 
-    pub fn to_json(&self) -> String {
-        serde_json::to_string(&self).expect("Failed to convert to JSON")
-    }
-
     pub fn from_json(json_string: &str) -> Result<Self, serde_json::Error> {
         serde_json::from_str(json_string)
     }
 
-    pub fn write_to_json(&self) {
+    #[allow(dead_code)]
+    pub fn from_user_input() -> Self {
+        let plan = prompt("Enter your plans: ");
+        PlansInfo::new(plan)
+    }
+
+    pub fn to_json(&self) -> String {
+        serde_json::to_string(&self).expect("Failed to convert to JSON")
+    }
+
+    pub fn write_to_file(&self) {
         let json_output = format!("{}\n", self.to_json());
 
         match OpenOptions::new().create(true).append(true).open("plans.json") {
@@ -49,6 +55,71 @@ pub fn read_plans_from_file() -> Result<Vec<PlansInfo>, io::Error> {
         }
     }
     Ok(plans)
+}
+
+pub fn update_plan() -> Result<(), io::Error> {
+    let plan_name = prompt("Enter your plan: ");
+    let mut plans = read_plans_from_file()?;
+
+    let mut found = false;
+
+    for item in &mut plans {
+        if item.plan == plan_name {
+            found = true;
+            item.plan = prompt("Enter your new plan: ");
+        }
+    }
+
+    if found {
+        let mut file = OpenOptions::new().write(true).truncate(true).open("plans.json")?;
+
+        for item in &plans {
+            let json_output = format!("{}\n", item.to_json());
+
+            if let Err(e) = file.write_all(json_output.as_bytes()) {
+                eprintln!("Error while writing plans: {}", e);
+            }
+        }
+        println!("Plan '{}' updated successfully.", plan_name);
+    } else {
+        println!("Plan '{}' not found in the database.", plan_name);
+    }
+
+    Ok(())
+}
+
+pub fn delete_plan() -> Result<(), io::Error> {
+    println!("Please give me the name of the plan you want to delete:");
+
+    let plan_name = prompt("Enter your plan: ");
+
+    let mut plans = read_plans_from_file()?;
+    let mut found = false;
+
+    plans.retain(|plan| {
+        if plan.plan == plan_name {
+            found = true;
+            false
+        } else {
+            true
+        }
+    });
+
+    if found {
+        let mut file = OpenOptions::new().write(true).truncate(true).open("plans.json")?;
+
+        for plan in &plans {
+            let json_output = format!("{}\n", plan.to_json());
+            if let Err(e) = file.write_all(json_output.as_bytes()) {
+                eprintln!("Error while writing to file: {}", e);
+            }
+        }
+        println!("Plan '{}' deleted successfully.", plan_name);
+    } else {
+        println!("Plan '{}' not found in the database.", plan_name);
+    }
+
+    Ok(())
 }
 
 pub fn prompt(prompt: &str) -> String {

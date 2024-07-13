@@ -2,12 +2,6 @@
 
 <p>Welcome to **My Plans App**! This application allows you to manage your plans efficiently. Add, edit, delete, view, and search your plans with ease using this command-line tool.</p>
 
-<p>## 📚 Table of Contents</p>
-
-<li> [Introduction](#-introduction)</li>
-<li> [Features](#-features)</li>
-<li> [Installation](#-installation)</li>
-<br>
 <p>## 🌟 Introduction</p>
 
 <p>**My Plans App** is a Rust-based command-line application designed to help you keep track of your plans. Whether it's for daily tasks, long-term goals, or just a list of things you need to remember, this app has you covered.</p>
